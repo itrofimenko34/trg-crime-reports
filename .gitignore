@@ -1,0 +1,11 @@
+# IntelliJ
+.idea/
+.idea_modules/
+*.iws
+*.ipr
+*.iml
+
+
+# Build directories
+target/
+project/
