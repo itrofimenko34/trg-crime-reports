@@ -6,30 +6,25 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.types.StructType
 import trg.model.{CrimeOutcome, CrimeReport}
 
-object ParquetExporter extends App with Logging {
+object ParquetExporter extends App with Logging with SparkRunner {
+
+  val appName = "parquet-exporter"
 
   val inputPath: String = args(0)
   val outputPath: String = args(1)
   val coresNum: Int = args(2).toInt
   val logLevel: String = args(3)
 
-  val spark: SparkSession = SparkSession.builder()
-    .appName("trg-crime-reports-parquet-exporter")
-    .config("spark.default.parallelism", coresNum * 2)
-    .config("spark.sql.shuffle.partitions", coresNum * 2)
-    .getOrCreate()
-
-  spark.sparkContext.setLogLevel(logLevel)
-
   val districtNameExtractRegex: String = "/\\d{4}-\\d{2}-(\\w*)-street\\.csv$"
 
+  setLoggerLevel()
   run(spark, inputPath, outputPath)
 
   def run(spark: SparkSession, inputFolder: String, outputFolder: String): Unit = {
     import spark.implicits._
     val startTime = System.currentTimeMillis
 
-    println(s"The job is started!")
+    println(s"ParquetExporter Spark job has been started!")
 
     val crimesPath = s"$inputFolder/*/*-street.csv"
     val crimesDS = readInputCSV(spark, crimesPath, CrimeReport.validationSchema)
@@ -49,7 +44,7 @@ object ParquetExporter extends App with Logging {
             .getOrElse(crime)
       }
 
-    completeCrimesPartDS.write.mode(saveMode = "overwrite").parquet(outputFolder)
+    completeCrimesPartDS.write.mode(saveMode = "overwrite").json(outputFolder)
 
     println(s"Total processing time: ${(System.currentTimeMillis - startTime) / 1000D} seconds")
     println(s"Output path: $outputFolder")

@@ -24,7 +24,7 @@ object CrimeReport {
 
   val validationSchema: StructType = StructType(Seq(
     StructField(crimeIdLabel, StringType, nullable = true),
-    StructField(districtNameLabel, StringType, nullable = true),
+    StructField(districtNameLabel, StringType, nullable = false),
     StructField(latitudeLabel, StringType, nullable = true),
     StructField(longitudeLabel, StringType, nullable = true),
     StructField(crimeTypeLabel, StringType, nullable = true),
