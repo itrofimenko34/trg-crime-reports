@@ -17,15 +17,7 @@ abstract class SparkRunner extends App with Logging {
    * Key - argument name
    * Value - argument value
    */
-  val argsMap: Map[String, String] = {
-    val argsSeparator: String = "="
-    args
-      .filter(_.contains(argsSeparator))
-      .map { arg =>
-        val splits = arg.split(argsSeparator)
-        splits(0) -> splits(1)
-      }.toMap
-  }
+  val argsMap: Map[String, String] = parseArguments(args)
 
   /**
    * Number of cores to use. SparkSession property. Default: 2
@@ -38,7 +30,7 @@ abstract class SparkRunner extends App with Logging {
   /**
    * Master url. SparkSession property. Default: local[coresNum]
    */
-  private val master: String = argsMap.getOrElse("master", s"local[$coresNum]")
+  protected val master: String = argsMap.getOrElse("master", s"local[$coresNum]")
 
   /**
    * Configure and start SparkSession
@@ -69,4 +61,19 @@ abstract class SparkRunner extends App with Logging {
    * This method should contain runner's business logic.
    */
   def process(): Unit
+
+  /**
+   * Transforms application arguments formatted in key=value into a map type.
+   * @param arguments - application arguments
+   * @return
+   */
+  def parseArguments(arguments: Array[String]): Map[String, String] = {
+    val argsSeparator: String = "="
+    arguments
+      .filter(_.contains(argsSeparator))
+      .map { arg =>
+        val splits = arg.split(argsSeparator)
+        splits(0) -> splits(1)
+      }.toMap
+  }
 }

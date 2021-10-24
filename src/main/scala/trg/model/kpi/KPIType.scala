@@ -1,16 +1,13 @@
 package trg.model.kpi
 
 /**
- *
+ * Enumerator for KPI types
  */
 sealed trait KPIType {
   val name: String
   override def toString: String = name
 }
 
-/**
- *
- */
 object KPIType {
   def fromString(str: String): KPIType =
     str match {
@@ -21,14 +18,14 @@ object KPIType {
 }
 
 /**
- *
+ *  Count KPI enum
  */
 case object Count extends KPIType {
   val name = "count"
 }
 
 /**
- *
+ * Percent KPI enum
  */
 case object Percent extends KPIType {
   val name = "percent"
