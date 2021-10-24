@@ -10,15 +10,14 @@ LOG4J_PATH="$WORK_DIR/target/classes/log4j.properties"
 usage() {
   cat << EOF
 trg-crime-reports.sh supports next tasks:
-  export                  Launches export Spark job that reads crimes(street) and outcomes csv files and persist
-                          result in parquet format.
-  kpi                     Launches export Spark job that reads crimes(street) and outcomes csv files and persist
-                          result in parquet format.
-  query                   Execute SQL query in spark-sql console. Can be used to interact with parquet files.
-  start                   Build the project and starts spark in docker container. Takes input data path as a parameter.
-  stop                    Stop the container and do the clean up.
-  restart                 Rebuilds the jar and restarts docker container.
-  update-jar              Rebuilds the jar
+  start <base_directory>                  Build the project and starts spark in docker container. Takes input data path as a parameter.
+  stop                                    Stop the container and do the clean up.
+  restart                                 Rebuilds the jar and restarts docker container.
+  update-jar                              Rebuilds the jar
+  export                                  Launches export Spark job that reads crimes(street) and outcomes csv files and persist
+                                          result in parquet format.
+  kpi                                     Starts a KPIProcessor job to calculate different kind of KPI's
+  query                                   Execute SQL query in spark-sql console. Can be used to interact with parquet files.
 EOF
   exit
 }
@@ -67,7 +66,7 @@ launch_spark_batch_job(){
     "$@" master="spark://spark-master:7077"
 }
 
-if [ -n "$1" ]; then
+if [ -n "${1-}" ]; then
   TASK=$1
 else
     msg "TASK is not specified."
@@ -75,11 +74,11 @@ else
 fi
 
 if [ "$TASK" == "start" ]; then
-    if [ -n "$2" ]; then
-          container_start $2
+    if [ -n "${2-}" ]; then
+          container_start "$2"
     else
         msg "Path to the csv data is not specified."
-      usage
+        usage
     fi
 elif [ "$TASK" == "stop" ]; then
     container_stop
@@ -93,7 +92,7 @@ elif [ "$TASK" == "export" ]; then
 elif [ "$TASK" == "kpi" ]; then
   launch_spark_batch_job trg.KPIProcessor "$@" inputPath=data/parquet
 elif [ "$TASK" == "query" ]; then
-    if [ -z "$2" ]; then
+    if [ -z "${2-}" ]; then
       msg 'Provide SQL query. Sample: ./trg-crime-reports.sh query "SELECT * FROM data LIMIT 10;"'
       exit
     fi
