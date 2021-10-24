@@ -37,8 +37,6 @@ update_jar(){
 container_start(){
     INPUT_DIR="${1-}"
 
-    update_jar
-
     cp docker-compose.yaml.template docker-compose.yaml
     sed -i "" "s|<INPUT_DIR>|$INPUT_DIR|g" docker-compose.yaml
     sed -i "" "s|<JAR_PATH>|$JAR_PATH|g" docker-compose.yaml
